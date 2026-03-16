@@ -1,6 +1,6 @@
 {
   "name": "wa-api-notify",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "WhatsApp API wrapper — kirim pesan, gambar, dan dokumen via waapi.fyas.my.id",
   "main": "./index.cjs",
   "module": "./index.mjs",
