@@ -1,6 +1,6 @@
 {
   "name": "wa-api-notify",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Lightweight Node.js library for sending WhatsApp messages, images, and documents via the waapi.fyas.my.id API",
   "main": "./index.cjs",
   "module": "./index.mjs",
