@@ -1,7 +1,7 @@
 {
   "name": "wa-api-notify",
   "version": "1.0.3",
-  "description": "WhatsApp API wrapper — kirim pesan, gambar, dan dokumen via waapi.fyas.my.id",
+  "description": "Lightweight Node.js library for sending WhatsApp messages, images, and documents via the waapi.fyas.my.id API",
   "main": "./index.cjs",
   "module": "./index.mjs",
   "exports": {
@@ -18,12 +18,16 @@
   },
   "keywords": [
     "whatsapp",
+    "whatsapp-api",
     "wa",
     "api",
     "notify",
+    "notification",
     "bot",
     "sender",
-    "message"
+    "message",
+    "messaging",
+    "nodejs"
   ],
   "author": "KiroFyzu",
   "license": "MIT",
