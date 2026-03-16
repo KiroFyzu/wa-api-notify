@@ -14,7 +14,7 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node -e \"const { sendMessage } = require('./index.cjs'); console.log('CJS OK');\" && node --input-type=module -e \"import { sendMessage } from './index.mjs'; console.log('ESM OK');\""
+    "test": "node -e \"const { sendMessage, createClient } = require('./index.cjs'); if (typeof createClient !== 'function') { throw new Error('createClient missing (CJS)'); } console.log('CJS OK');\" && node --input-type=module -e \"import { sendMessage, createClient } from './index.mjs'; if (typeof createClient !== 'function') { throw new Error('createClient missing (ESM)'); } console.log('ESM OK');\""
   },
   "keywords": [
     "whatsapp",

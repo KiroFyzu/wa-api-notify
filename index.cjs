@@ -4,16 +4,33 @@ const axios = require('axios');
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const API_BASE_URL = 'https://waapi.fyas.my.id/i';
-const API_KEY = 'wapi_3ac13d1d940643a5c5312671f077a35b5c1716235af8540797c22d592d6d99a2';
 
-// ── Axios instance ────────────────────────────────────────────────────────────
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    'X-API-Key': API_KEY
+// ── Auth / Client ─────────────────────────────────────────────────────────────
+function resolveApiKey(explicitApiKey) {
+  const candidate =
+    explicitApiKey != null && String(explicitApiKey).trim() !== ''
+      ? String(explicitApiKey).trim()
+      : (process.env.WA_API_KEY || '').trim();
+
+  if (!candidate) {
+    throw new Error(
+      'API key belum diset. Set env WA_API_KEY atau gunakan createClient({ apiKey }).'
+    );
   }
-});
+
+  return candidate;
+}
+
+function createApiClient({ apiKey, baseUrl } = {}) {
+  const resolvedKey = resolveApiKey(apiKey);
+  return axios.create({
+    baseURL: baseUrl || API_BASE_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': resolvedKey
+    }
+  });
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function normalizeNumber(number) {
@@ -28,7 +45,7 @@ function normalizeNumber(number) {
  * @param {string}        message - Isi pesan teks
  * @returns {Promise<Object|null>} Response data dari API, atau null jika gagal
  */
-async function sendMessage(number, message) {
+async function sendMessageWithApi(api, number, message) {
   if (!number || !message) {
     throw new Error('Parameter "number" dan "message" wajib diisi.');
   }
@@ -52,6 +69,10 @@ async function sendMessage(number, message) {
   }
 }
 
+async function sendMessage(number, message) {
+  return sendMessageWithApi(createApiClient(), number, message);
+}
+
 // ── sendImage ─────────────────────────────────────────────────────────────────
 /**
  * Kirim gambar ke nomor WhatsApp.
@@ -60,7 +81,7 @@ async function sendMessage(number, message) {
  * @param {string}        [caption=''] - Caption gambar (opsional)
  * @returns {Promise<Object|null>}
  */
-async function sendImage(number, imageUrl, caption = '') {
+async function sendImageWithApi(api, number, imageUrl, caption = '') {
   if (!number || !imageUrl) {
     throw new Error('Parameter "number" dan "imageUrl" wajib diisi.');
   }
@@ -85,6 +106,10 @@ async function sendImage(number, imageUrl, caption = '') {
   }
 }
 
+async function sendImage(number, imageUrl, caption = '') {
+  return sendImageWithApi(createApiClient(), number, imageUrl, caption);
+}
+
 // ── sendDocument ──────────────────────────────────────────────────────────────
 /**
  * Kirim dokumen/file ke nomor WhatsApp.
@@ -93,7 +118,7 @@ async function sendImage(number, imageUrl, caption = '') {
  * @param {string}        [filename='file'] - Nama file (opsional)
  * @returns {Promise<Object|null>}
  */
-async function sendDocument(number, documentUrl, filename = 'file') {
+async function sendDocumentWithApi(api, number, documentUrl, filename = 'file') {
   if (!number || !documentUrl) {
     throw new Error('Parameter "number" dan "documentUrl" wajib diisi.');
   }
@@ -118,8 +143,25 @@ async function sendDocument(number, documentUrl, filename = 'file') {
   }
 }
 
+async function sendDocument(number, documentUrl, filename = 'file') {
+  return sendDocumentWithApi(createApiClient(), number, documentUrl, filename);
+}
+
+// ── createClient ──────────────────────────────────────────────────────────────
+function createClient(config = {}) {
+  const api = createApiClient(config);
+  return {
+    sendMessage: (number, message) => sendMessageWithApi(api, number, message),
+    sendImage: (number, imageUrl, caption = '') =>
+      sendImageWithApi(api, number, imageUrl, caption),
+    sendDocument: (number, documentUrl, filename = 'file') =>
+      sendDocumentWithApi(api, number, documentUrl, filename)
+  };
+}
+
 // ── Exports ───────────────────────────────────────────────────────────────────
 module.exports = {
+  createClient,
   sendMessage,
   sendImage,
   sendDocument

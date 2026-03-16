@@ -26,10 +26,26 @@ npm install wa-api-notify
 
 ## Usage
 
+## Configuration
+
+This library requires an API key.
+
+- Set the environment variable `WA_API_KEY`, or
+- Pass `apiKey` via `createClient({ apiKey })`.
+
 ### CommonJS (`require`)
 
 ```js
-const { sendMessage, sendImage, sendDocument } = require('wa-api-notify');
+const { sendMessage, sendImage, sendDocument, createClient } = require('wa-api-notify');
+
+// Option A (recommended): create a client (OpenAI-style)
+const client = createClient({
+  apiKey: process.env.WA_API_KEY,
+});
+
+await client.sendMessage('628123456789', 'Hello from Node.js!');
+
+// Option B: use top-level functions (requires WA_API_KEY env var)
 
 // Send a text message
 await sendMessage('628123456789', 'Hello from Node.js!');
@@ -44,7 +60,15 @@ await sendDocument('628123456789', 'https://example.com/file.pdf', 'report.pdf')
 ### ES Modules (`import`)
 
 ```js
-import { sendMessage, sendImage, sendDocument } from 'wa-api-notify';
+import { sendMessage, sendImage, sendDocument, createClient } from 'wa-api-notify';
+
+const client = createClient({
+  apiKey: process.env.WA_API_KEY,
+});
+
+await client.sendMessage('628123456789', 'Hello from ESM!');
+
+// Or, top-level functions (requires WA_API_KEY env var)
 
 await sendMessage('628123456789', 'Hello from ESM!');
 ```
@@ -141,7 +165,16 @@ npm install wa-api-notify
 ## Penggunaan
 
 ```js
-const { sendMessage, sendImage, sendDocument } = require('wa-api-notify');
+const { sendMessage, sendImage, sendDocument, createClient } = require('wa-api-notify');
+
+// Opsi A (disarankan): buat client (gaya OpenAI)
+const client = createClient({
+  apiKey: process.env.WA_API_KEY,
+});
+
+await client.sendMessage('628123456789', 'Hello dari Node.js!');
+
+// Opsi B: gunakan fungsi langsung (WA_API_KEY harus diset di env)
 
 // Kirim pesan teks
 await sendMessage('628123456789', 'Hello dari Node.js!');
