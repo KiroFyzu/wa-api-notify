@@ -4,6 +4,8 @@ const axios = require('axios');
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const API_BASE_URL = 'https://waapi.fyas.my.id/i';
+const RATE_LIMIT_MS = 30 * 1000;
+const lastSendAtByApiKey = new Map();
 
 // ── Auth / Client ─────────────────────────────────────────────────────────────
 function resolveApiKey(explicitApiKey) {
@@ -23,19 +25,40 @@ function resolveApiKey(explicitApiKey) {
 
 function createApiClient({ apiKey, baseUrl } = {}) {
   const resolvedKey = resolveApiKey(apiKey);
-  return axios.create({
+  const client = axios.create({
     baseURL: baseUrl || API_BASE_URL,
     headers: {
       'Content-Type': 'application/json',
       'X-API-Key': resolvedKey
     }
   });
+
+  client.__waApiKey = resolvedKey;
+  return client;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function normalizeNumber(number) {
   // Strip non-digit chars, ensure it starts with country code (no leading +)
   return String(number).replace(/\D/g, '');
+}
+
+function enforceRateLimit(api) {
+  const apiKey = (api && api.__waApiKey) || resolveApiKey();
+  const now = Date.now();
+  const lastSendAt = lastSendAtByApiKey.get(apiKey);
+
+  if (typeof lastSendAt === 'number') {
+    const elapsed = now - lastSendAt;
+    if (elapsed < RATE_LIMIT_MS) {
+      const waitSeconds = Math.ceil((RATE_LIMIT_MS - elapsed) / 1000);
+      throw new Error(
+        `Rate limit: maksimal 1 pesan per 30 detik per API key. Coba lagi dalam ${waitSeconds} detik.`
+      );
+    }
+  }
+
+  lastSendAtByApiKey.set(apiKey, now);
 }
 
 // ── sendMessage ───────────────────────────────────────────────────────────────
@@ -49,6 +72,8 @@ async function sendMessageWithApi(api, number, message) {
   if (!number || !message) {
     throw new Error('Parameter "number" dan "message" wajib diisi.');
   }
+  enforceRateLimit(api);
+
   try {
     const response = await api.post('/whatsapp/send-message', {
       number: normalizeNumber(number),
@@ -85,6 +110,8 @@ async function sendImageWithApi(api, number, imageUrl, caption = '') {
   if (!number || !imageUrl) {
     throw new Error('Parameter "number" dan "imageUrl" wajib diisi.');
   }
+  enforceRateLimit(api);
+
   try {
     const response = await api.post('/whatsapp/send-image', {
       number: normalizeNumber(number),
@@ -122,6 +149,8 @@ async function sendDocumentWithApi(api, number, documentUrl, filename = 'file') 
   if (!number || !documentUrl) {
     throw new Error('Parameter "number" dan "documentUrl" wajib diisi.');
   }
+  enforceRateLimit(api);
+
   try {
     const response = await api.post('/whatsapp/send-document', {
       number: normalizeNumber(number),

@@ -1,6 +1,6 @@
 {
   "name": "wa-api-notify",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Lightweight Node.js library for sending WhatsApp messages, images, and documents via the waapi.fyas.my.id API",
   "main": "./index.cjs",
   "module": "./index.mjs",
@@ -14,7 +14,7 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node -e \"const { sendMessage, createClient } = require('./index.cjs'); if (typeof createClient !== 'function') { throw new Error('createClient missing (CJS)'); } console.log('CJS OK');\" && node --input-type=module -e \"import { sendMessage, createClient } from './index.mjs'; if (typeof createClient !== 'function') { throw new Error('createClient missing (ESM)'); } console.log('ESM OK');\""
+    "test": "node -e \"const { createClient } = require('./index.cjs'); if (typeof createClient !== 'function') { throw new Error('createClient missing (CJS)'); } const a = createClient({ apiKey: 'cjs-key-a', baseUrl: 'http://127.0.0.1:9' }); const b = createClient({ apiKey: 'cjs-key-b', baseUrl: 'http://127.0.0.1:9' }); Promise.resolve().then(async () => { try { await a.sendMessage('628123', 'first'); } catch (_) {} let blocked = false; try { await a.sendImage('628123', 'https://x.test/a.jpg'); } catch (e) { blocked = /Rate limit/.test(String(e && e.message)); } if (!blocked) { throw new Error('CJS rate limit check failed'); } try { await b.sendMessage('628123', 'other key'); } catch (_) {} console.log('CJS OK'); }).catch((e) => { console.error(e); process.exit(1); });\" && node --input-type=module -e \"import { createClient } from './index.mjs'; if (typeof createClient !== 'function') { throw new Error('createClient missing (ESM)'); } const a = createClient({ apiKey: 'esm-key-a', baseUrl: 'http://127.0.0.1:9' }); const b = createClient({ apiKey: 'esm-key-b', baseUrl: 'http://127.0.0.1:9' }); try { await a.sendDocument('628123', 'https://x.test/a.pdf'); } catch {} let blocked = false; try { await a.sendMessage('628123', 'second'); } catch (e) { blocked = /Rate limit/.test(String(e?.message)); } if (!blocked) { throw new Error('ESM rate limit check failed'); } try { await b.sendMessage('628123', 'other key'); } catch {} console.log('ESM OK');\""
   },
   "keywords": [
     "whatsapp",
