@@ -33,6 +33,15 @@ This library requires an API key.
 - Set the environment variable `WA_API_KEY`, or
 - Pass `apiKey` via `createClient({ apiKey })`.
 
+## Important Update
+
+- Rate limit: `1 message per 30 seconds` per API key.
+- If the limit is exceeded, requests are temporarily rejected.
+- Keep your API key secret and only use it as needed.
+- API endpoint: [https://waapi.fyas.my.id/](https://waapi.fyas.my.id/)
+
+This rate limit applies to all send methods: `sendMessage`, `sendImage`, and `sendDocument`.
+
 ### CommonJS (`require`)
 
 ```js
@@ -122,6 +131,8 @@ Send a document or file to a WhatsApp number.
 
 All functions throw an `Error` on failure. Use `try/catch`:
 
+When the rate limit is exceeded, the function also throws an `Error` immediately (temporary rejection), so always handle errors safely.
+
 ```js
 try {
   const result = await sendMessage('628123456789', 'Test message');
@@ -186,9 +197,20 @@ await sendImage('628123456789', 'https://example.com/foto.jpg', 'Caption gambar'
 await sendDocument('628123456789', 'https://example.com/file.pdf', 'laporan.pdf');
 ```
 
+## Pembaruan Penting
+
+- Batas kirim: `1 pesan per 30 detik` untuk setiap API key.
+- Jika melebihi batas, request akan ditolak sementara.
+- Jaga kerahasiaan API key Anda dan gunakan seperlunya.
+- Endpoint API: [https://waapi.fyas.my.id/](https://waapi.fyas.my.id/)
+
+Aturan ini berlaku untuk semua metode kirim: `sendMessage`, `sendImage`, dan `sendDocument`.
+
 ## Error Handling
 
 Semua fungsi akan `throw Error` jika terjadi kegagalan. Gunakan `try/catch`:
+
+Jika batas kirim terlewati, fungsi juga akan melempar `Error` secara langsung (penolakan sementara), jadi pastikan selalu menangani error.
 
 ```js
 try {
